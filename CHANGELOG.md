@@ -4,6 +4,10 @@
 
 ## [未发布]
 
+### 新增
+
+- 口播计划可以声明 `openverse` 音效事件，由 `scripts/openverse_sfx.py` 从 Openverse 挑选音效并写入独立音轨（合并自上游 `feat/openverse-sfx`）。默认可用 CC0、CC BY 和 CC BY-NC；商单、广告、带货或引流视频加 `--commercial` 时只用 CC0 与 CC BY。挑选会联网，草稿的构建与发布不联网。使用时需按 `credits.md` 标注署名。
+
 ### 修复
 
 - 原生 MP4 导出不再因 ffprobe 的元数据显示方式被误拒。原生写出器会在 `moov` 中写入与 `ftyp` 同名的 `major_brand` 等元数据，本机 ffprobe 9.0.2 会把它们合并显示为 `isom;isom`，旧校验因此报 "not a standard MP4 container"。现在主品牌直接从文件开头的 `ftyp` 盒子读取（`engine/native_export.py` 的 `container_brand`）。判定标准未放宽：主品牌仍须为 `isom`、`mp41` 或 `mp42`，`qt  ` 仍被拒绝；帧数、时长、音视频流等检查不变。已在 macOS 26.5.2、剪映 11.5.0 上用 2 秒样例验证导出通过。
