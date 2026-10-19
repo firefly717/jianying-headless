@@ -1,5 +1,21 @@
 # 验证状态
 
+## 2026-10-19：Openverse 自动音效（Skill 可选联网步骤）
+
+本节记录 Skill 新增的 `openverse_sfx.py`：口播计划里的 `openverse` 英文关键词提示，在 `from-compiled`
+之后联网检索 Openverse 上的 Freesound 音效，处理成本地 WAV 并写入独立音轨。草稿 build/publish 仍不联网，
+引擎代码与固定值不变。验收在本机剪映 11.6.0（`jy14-headless-macos-11.6.0`）上进行。
+
+| 检查 | 本次结果与边界 |
+| --- | --- |
+| 仓库检查 | `tests/` 172 项通过，其中新增 `test_openverse_sfx.py` 13 项，网络全部使用假数据；`engine/test_headless.py` 用本机保留夹具 24 项通过，包括不带 `openverse_sfx` 字段的旧编译结果；源码包与 pin 检查通过 |
+| 联网挑选 | 6 秒合成源、1.25 倍速、4 个提示（`pop` 两次、`whoosh`、`camera shutter`）。`add` 共检索 3 次、下载 3 个预览，只访问 `api.openverse.org` 与 `cdn.freesound.org`；选中 3 个 CC0 音效，`credits.md` 注明不含 CC BY-NC、无需署名 |
+| 构建 | compile → from-compiled → `openverse_sfx.py add` → build → verify-build 通过：4.2 秒，视频 2 段、字幕 2 段，4 段音效同在一条音轨 |
+| 新建草稿真实 UI | 登记首页后打开，4 个素材都没有缺失提示，轨道与音效位置符合计划；完整播放，人工试听确认 4 个音效都正常。保存退出后回读 verified（`185.0.0`→`189.0.0`）；冷重开完整播放、退出后再次回读 verified；两次回读四镜像一致、来源未变 |
+| 未覆盖 | 只验收了 CC0 音效，CC BY / CC BY-NC 的署名文字没有在实际草稿中检查；挑选只依据标题、标签、时长和许可，不自动试听；Openverse 限流与下载失败只用假数据测试；原生导出在 11.6.0 上仍会拒绝；没有在其他机器上验收 |
+
+UI 步骤由自动化操作完成，只操作测试草稿；试听由维护者完成。
+
 ## 2026-10-18：11.6.0 草稿配置（新建与编辑副本，不含原生导出）
 
 维护端剪映于 10-15 被自动更新到 11.6.0（官方 build 13281）。本节记录新增的精确配置

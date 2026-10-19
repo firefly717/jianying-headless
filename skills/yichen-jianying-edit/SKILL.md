@@ -32,6 +32,9 @@ description: 在装有匹配版本剪映的 Apple Silicon Mac 上，无界面生
 - 明确要求成片：读 [原生导出](references/export-macos.md)，只导出已验证的冻结快照。
 - 口播语义剪辑：读 [语义与音频质检](references/editing-and-qc.md) 和
   [口播计划格式](references/plan-format.md)，由 `scripts/edit_plan.py` 统一编译时间映射。
+- 口播自动音效：用户要音效、又没有提供本地音频时，在口播计划里写英文关键词的
+  `openverse` 事件；`from-compiled` 之后用 `scripts/openverse_sfx.py add` 挑选并写入
+  独立音轨，步骤见 [无界面计划与命令](references/headless-macos.md)。
 
 ## 执行与验收
 
@@ -43,6 +46,16 @@ description: 在装有匹配版本剪映的 Apple Silicon Mac 上，无界面生
   不把 `--expect-*` 等一致性参数误当成需要用户逐项填写的审批问题。
 - 特效资源只能来自本机已合法取得的匹配缓存，保持原有许可字段与字节校验。
   不下载、解锁、伪造授权，不能把缓存存在或技术渲染成功当作会员/商用许可。
+- `openverse_sfx.py` 会联网，只访问 Openverse API 与 Freesound 预览地址；
+  草稿 build/publish 仍不联网。音效保留各自的 CC 许可：默认 CC0、CC BY、CC BY-NC
+  都可用，CC BY-NC 只在没有合适的 CC0 / CC BY 时选中。请求表明是商单、广告、带货、
+  引流或开通收益的视频时加 `--commercial`，只用 CC0 / CC BY。
+- 某个关键词找不到合格音效或遇到限流时，整步失败、不写新计划。改口播计划里的关键词
+  后重新编译，或稍后用新的 `--work` 重跑；不换未审查的来源、不绕过限流，也不为了
+  成功去掉用户要的音效。
+- 用了 Openverse 音效时，交付说明须转述本次 `credits.md`：是否含 CC BY-NC（只能
+  用于非商业视频）、哪些音效需要署名，并附可直接粘贴的署名文字。挑选只依据标题、
+  标签、时长和许可，没有试听；原生验收时一并听音效。
 - 复合片段只能作为实验性的离线构建、修改与冻结快照导出；正式首页登记仍被阻止。
   不把它交付成已经通过原生保存持久化验收的嵌套草稿。
 - 草稿需在剪映中检查画面、字幕、音量和切口，保存、退出并冷重开后回读。

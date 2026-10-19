@@ -44,6 +44,19 @@ python3 SKILL/scripts/headless_draft.py from-compiled --compiled WORK/compiled/c
 
 这项选择只支持已固定字节身份的本机「啵1」缓存。资源本身复制为本地音频，不保留在线音效的授权/资源身份。MP3 解码时长可能短于音效库显示时长，转换器保留实际可解码部分并报告差异；重复音效发生重叠时使用独立音轨，不裁掉事件。其他已合法取得的音频可直接写入下面的本地计划。
 
+有 Openverse 音效提示时（`compile` 输出的 `openverse_sfx` 大于 0），在 `from-compiled` 和 `build` 之间加一步；计划同时含「啵1」时，`from-compiled` 照常加 `--cached-sounds-as-local`：
+
+```bash
+python3 SKILL/scripts/openverse_sfx.py add --compiled WORK/compiled/compiled.json --plan WORK/headless-plan.json --out WORK/headless-plan-sfx.json --work WORK/openverse-sfx-v1
+python3 SKILL/scripts/headless_draft.py build --plan WORK/headless-plan-sfx.json --out WORK/headless-build
+```
+
+- 联网范围：只用 HTTPS 请求 `api.openverse.org` 检索 Freesound 来源，再从 `cdn.freesound.org` 下载预览 MP3；明文 HTTP、其他主机以及指向其他主机的重定向都会被拒绝。每个不同关键词检索一次，请求里只有关键词和筛选条件。Openverse 匿名额度约为每分钟 20 次、每天 200 次；短暂限流会等待后重试，需等待超过 60 秒时直接报错，不换来源。草稿 build/publish 本身仍不联网。
+- 挑选：标题和标签都对不上关键词的结果不选；像音乐、循环、环境声、人声或合集的结果排在干净匹配之后；CC BY-NC 只在没有干净的 CC0 / CC BY 匹配时选中，其余同等条件下 CC0 优先于 CC BY。默认允许 CC0、CC BY、CC BY-NC，`--commercial` 只检索 CC0 / CC BY。某个关键词没有合格结果时整步失败，写入 `status` 为 `failed` 的 `report.json`，不写新计划；改口播计划里的关键词，重新 `compile` 和 `from-compiled` 后再运行。
+- 处理：起音前保留 3 ms，长度不超过该提示的 `max_duration`，截短处 40 ms 淡出；最响 50 ms 窗口统一到约 -20 dBFS，峰值不超过 -1 dBFS，计划里的 `volume` 在此基础上缩放。输出为 48 kHz PCM WAV，按时间点写入「Openverse 音效 N」音轨，重叠时另开一轨，到成片结尾截止；口播和字幕轨不变。
+- 输出：`--work` 下保留 `search/` 原始响应、`downloads/` 预览 MP3、`sounds/` 处理后的 WAV、`report.json`（每个音效的来源页、作者、许可、哈希、剪裁、增益与备选）和 `credits.md`（交付时转述的使用限制与可粘贴署名）。`--out` 和 `--work` 必须是新路径；输入计划须来自同一编译结果，已含 Openverse 音轨时拒绝，避免重复添加。
+- 挑选不试听；原生验收时要听音效，不合适就按上面的方式换关键词重跑。只想看候选时运行 `python3 SKILL/scripts/openverse_sfx.py search --query whoosh --max-duration 1.2`，只检索不下载，也占一次额度。Openverse 不核验许可状态，发布前可按 `credits.md` 的原始页面复核；许可边界见 [运行依赖与来源](dependencies-and-notices.md)。
+
 ## `jy14-headless-plan/v1`
 
 时间全部为整数微秒。计划可以直接手写，也可在 `from-compiled` 输出后加入 BGM、额外标题或 B-roll；任何改动应发生在 build 之前。
