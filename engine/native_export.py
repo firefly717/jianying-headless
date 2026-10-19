@@ -476,10 +476,17 @@ def sandbox_profile(out):
             '(allow file-write* (literal "/dev/null"))\n').encode()
 
 
-def validate_probe(info, settings, duration_us, audio_expected):
+def container_brand(path):
+    # ffprobe folds same-named mdta metadata into format tags, so read the ftyp box directly.
+    with Path(path).open('rb') as stream:
+        head = stream.read(12)
+    j.require(len(head) == 12 and head[4:8] == b'ftyp', 'Native output is not a standard MP4 container')
+    return head[8:12].decode('ascii', 'replace')
+
+
+def validate_probe(info, settings, duration_us, audio_expected, brand):
     fmt = info.get('format', {})
-    j.require(fmt.get('tags', {}).get('major_brand') in ('isom', 'mp41', 'mp42'),
-              'Native output is not a standard MP4 container')
+    j.require(brand in ('isom', 'mp41', 'mp42'), 'Native output is not a standard MP4 container')
     video = [s for s in info.get('streams', []) if s.get('codec_type') == 'video']
     audio = [s for s in info.get('streams', []) if s.get('codec_type') == 'audio']
     j.require(len(video) == 1 and video[0].get('codec_name') == 'h264', 'Expected one H.264 stream')
@@ -511,7 +518,7 @@ def validate_probe(info, settings, duration_us, audio_expected):
             'duration_delta_seconds': round(actual_duration - duration_us / 1_000_000, 6),
             'width': v['width'], 'height': v['height'], 'fps': actual_fps,
             'video_codec': 'h264', 'audio_codec': 'aac' if audio else None,
-            'major_brand': fmt['tags']['major_brand']}
+            'major_brand': brand}
 
 
 def run(build, out, bitrate=4_000_000, timeout=600):
@@ -584,7 +591,7 @@ def run(build, out, bitrate=4_000_000, timeout=600):
         audio_expected = any(bool(child['materials'].get('audios')) or any(
             v.get('has_audio', True) for v in child['materials'].get('videos', [])
             if v.get('type') == 'video' and v.get('path')) for _, child in compound.graph(timeline))
-        evidence['media'] = validate_probe(probe, settings, timeline['duration'], audio_expected)
+        evidence['media'] = validate_probe(probe, settings, timeline['duration'], audio_expected, container_brand(output))
         decoded = subprocess.run(['ffmpeg', '-v', 'error', '-xerror', '-i', str(output), '-f', 'null', '-'],
                                  capture_output=True, timeout=timeout)
         j.write(job / 'decode.stderr.log', decoded.stderr)

@@ -107,7 +107,7 @@ python3 SKILL/scripts/headless_draft.py from-compiled --compiled WORK/compiled/c
 
 原生会把时间吸附到帧网格，回读容差为一帧；这不是允许删除发音保护区。口播时间映射仍由 `edit_plan.py` 在 build 前审查。
 
-首页索引原件及替换前后的扩展属性保存在审计目录。quarantine 等安全属性必须原样保留；当前 macOS 会为替换 inode 赋予不同的 `com.apple.provenance` 字节，该唯一变化单独记录，不能为了通过检查移除它或其他属性。
+首页索引原件及替换前后的扩展属性保存在审计目录。quarantine 等安全属性必须原样保留；当前 macOS 会为替换 inode 赋予不同的 `com.apple.provenance` 字节，写入 quarantine 时也可能新增该属性；这类 provenance 变化单独记录，不能为了通过检查移除它或其他属性。
 
 若出现目录已写入、但首页登记失败，查看本次审计 `published.json` 后可以：
 

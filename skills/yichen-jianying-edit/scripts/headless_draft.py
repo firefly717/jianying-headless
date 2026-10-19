@@ -34,7 +34,7 @@ BACKEND = PROJECT_ROOT / 'engine'
 PINS = {
     'native_fonts.py': 'ddd7b4c1ecd55890bd645c14930f2c5f6687794691c2280daa32673e048da5e6',
     'runtime_profiles.py': '76b753550854c0418abe2a1ee5cc06e7c585c8d514bc4fa1b275569358e8c48f',
-    'jy14_headless.py': '3feb3efeb10173303986609a36b9e173ccd651430acbb6b0cc8e945e4ffc2a9b',
+    'jy14_headless.py': 'b5fce95fb69b2b82fdb73985b9e2344d6bd4dffa701c141dd5023d8e914998bc',
     'native_motion.py': '5d743caaa38c921779166e5663d36f72a0c3fdb130a690ac3942a7adcf62d6c2',
     'native_effects.py': 'c46b2fc9221dd613f220564b752e532f8f3753dd5595aaffc24f41d5236e4e97',
     'native_resources.py': '9bddfbb1cd688cebd69ac49f9bbf63c242522d9666a2ef7b412fe097113f68f2',
@@ -43,7 +43,7 @@ PINS = {
     'native_compound.py': 'eb9e7d5544e1726be291912c47a5cc917b80180a231242ca30b7b5aaf68f5bfc',
     'compound-blueprint.json': '9cba9435053280abf9072d5eaccb8586c841b11dac6854b32daf9cbdba76af8e',
     'native_edit.py': '7db3c871636a242d743792536e12e5f08251dafc1eba44e8260dba0c9a5148d9',
-    'native_export.py': '10191828c86c12396c77be5ac7a39ee712c4b5f1ac341a09f73418eac5d7202d',
+    'native_export.py': '70ddd06dbece5007ba5d3daffe55db757afc0c43d7d266f626361754383a7f9d',
     'native_export.cpp': 'c60da6c65f5bb7ac733b8f5b619401be3921f9254b953a55903d4e7566156379',
     'headless_runtime.py': '81d75135473eb531688099b45a5a2acf922b4c385a8feaf39f0c92963b46ccca',
     'blueprint.json': '91f7eddad5bff9af23eb88b53713c180e3e3d4054edd469140cfa9aa56bc1dc9',

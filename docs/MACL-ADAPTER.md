@@ -2,7 +2,7 @@
 
 关联 [Issue #5](https://github.com/mcncarl/jianying-headless/issues/5)。本文件说明
 `publish()` 临时索引准备的权限保留机制与已验/未验边界。
-判定规则本身没有放宽；本文不描述也不支持任何忽略 `com.apple.macl`、
+判定规则仅对 `com.apple.provenance` 放宽（见下文第 5 步）；本文不描述也不支持任何忽略 `com.apple.macl`、
 按长度放行、删除属性或关闭 SIP/TCC 的方案。
 
 ## 背景
@@ -23,8 +23,9 @@
 4. 仅在克隆**明确不受支持**（`errno.ENOTSUP`，例如非 APFS 卷）时回退到
    原先的直接新建路径，过同一道判定门；权限、目标已存在等其余错误直接失败，
    不静默回退。
-5. 覆写后照常执行 `copy_xattrs`：仍只容忍 `com.apple.provenance` 值变化
-   且两侧均存在；`com.apple.macl`、`com.apple.quarantine` 及任何属性的
+5. 覆写后照常执行 `copy_xattrs`：容忍 `com.apple.provenance` 的值变化，以及
+   写入 quarantine 时由系统新增的 provenance（记入 `os_managed_attribute_changes`）；
+   provenance 消失仍拒绝。`com.apple.macl`、`com.apple.quarantine` 及其他任何属性的
    出现、消失或变化仍拒绝。提交前复查与失败恢复逻辑不变。
 6. 审计 `prepared.json` 与失败时的 `failure.json` 记录 `prepared_via`（`clonefile`、`create`
    或尚未准备），门禁报错也附带该信息，不伪报完整保留。

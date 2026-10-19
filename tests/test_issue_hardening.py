@@ -453,11 +453,20 @@ class AttributePolicyTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, name):
                         j.copy_xattrs(source, Path('/unused'), Path('/audit'))
 
-    def test_provenance_appearance_or_disappearance_remains_blocked(self):
-        for source, copied in (({'com.apple.provenance': b'x'}, {}), ({}, {'com.apple.provenance': b'x'})):
-            with self.subTest(source_has_provenance=bool(source)), patch.object(j, 'write'), patch.object(j.subprocess, 'run'), patch.object(j, 'read_xattrs', return_value=copied):
-                with self.assertRaisesRegex(ValueError, 'provenance'):
-                    j.copy_xattrs(source, Path('/unused'), Path('/audit'))
+    def test_os_added_provenance_is_recorded_and_tolerated(self):
+        source = {'com.apple.quarantine': b'kept'}
+        copied = {'com.apple.provenance': b'new', 'com.apple.quarantine': b'kept'}
+        with patch.object(j, 'write'), patch.object(j.subprocess, 'run'), patch.object(j, 'read_xattrs', return_value=copied):
+            staged, changed = j.copy_xattrs(source, Path('/unused'), Path('/audit'))
+        self.assertEqual(staged, copied)
+        self.assertEqual(changed, ['com.apple.provenance'])
+
+    def test_provenance_disappearance_remains_blocked(self):
+        source = {'com.apple.provenance': b'x', 'com.apple.quarantine': b'kept'}
+        copied = {'com.apple.quarantine': b'kept'}
+        with patch.object(j, 'write'), patch.object(j.subprocess, 'run'), patch.object(j, 'read_xattrs', return_value=copied):
+            with self.assertRaisesRegex(ValueError, 'provenance attribute disappeared'):
+                j.copy_xattrs(source, Path('/unused'), Path('/audit'))
 
 
 if __name__ == '__main__':
